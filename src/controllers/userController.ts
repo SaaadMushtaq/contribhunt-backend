@@ -14,7 +14,6 @@ export async function updateSkills(
     return;
   }
 
-  // Delete existing auto-detected skills and replace with new ones
   const { error: deleteError } = await supabase
     .from("user_skills")
     .delete()
@@ -42,7 +41,6 @@ export async function updateSkills(
     }
   }
 
-  // Mirror on users row
   await supabase.from("users").update({ skills }).eq("id", userId);
 
   res.json({ skills });

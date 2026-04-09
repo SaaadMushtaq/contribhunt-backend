@@ -14,7 +14,6 @@ export async function detectSkills(
     const repos = await githubService.getUserRepos(user.github_token);
     const skills = detectSkillsFromRepos(repos);
 
-    // Replace all auto-detected skills
     await supabase
       .from("user_skills")
       .delete()
@@ -29,7 +28,6 @@ export async function detectSkills(
       }));
       await supabase.from("user_skills").insert(rows);
 
-      // Mirror on users row
       await supabase.from("users").update({ skills }).eq("id", user.id);
     }
 

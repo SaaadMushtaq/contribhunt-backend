@@ -15,7 +15,6 @@ export async function searchIssues(
     const issues = await githubService.searchIssues(params, token);
     const ranked = await rankIssues(issues, params);
 
-    // Auto-save search for authenticated users
     if (req.user) {
       const name = `Auto: ${new Date().toISOString()}`;
       await supabase.from("saved_searches").insert({
@@ -95,12 +94,10 @@ export async function trackIssue(
   } = req.body;
 
   if (!issue_id || !issue_title || !issue_url || !repo_name || !repo_url) {
-    res
-      .status(400)
-      .json({
-        error:
-          "issue_id, issue_title, issue_url, repo_name, and repo_url are required",
-      });
+    res.status(400).json({
+      error:
+        "issue_id, issue_title, issue_url, repo_name, and repo_url are required",
+    });
     return;
   }
 

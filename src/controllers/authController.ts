@@ -23,7 +23,6 @@ export async function githubCallback(
     const githubToken = await githubService.exchangeCodeForToken(code);
     const githubUser = await githubService.getGitHubUser(githubToken);
 
-    // Upsert user
     const { data: user, error: upsertError } = await supabase
       .from("users")
       .upsert(
@@ -45,7 +44,6 @@ export async function githubCallback(
       return;
     }
 
-    // Detect skills for new users (no existing user_skills rows)
     const { count } = await supabase
       .from("user_skills")
       .select("id", { count: "exact", head: true })
@@ -64,7 +62,6 @@ export async function githubCallback(
           }));
           await supabase.from("user_skills").insert(rows);
 
-          // Mirror skills array on the users row
           await supabase.from("users").update({ skills }).eq("id", user.id);
         }
       } catch (skillErr) {

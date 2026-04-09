@@ -18,7 +18,7 @@ interface GroqIssueAnalysis {
 }
 
 function computeMatchScore(issue: GitHubIssue, params: SearchParams): number {
-  let score = 50; // baseline
+  let score = 50;
 
   const repoLanguage = issue.repository?.language?.toLowerCase() ?? "";
   const userSkillsLower = params.skills.map((s) => s.toLowerCase());
@@ -134,12 +134,10 @@ export async function rankIssues(
 ): Promise<RankedIssue[]> {
   const limited = issues.slice(0, MAX_ISSUES);
 
-  // Compute client-side match scores
   const matchScores = new Map<number, number>(
     limited.map((issue) => [issue.id, computeMatchScore(issue, params)]),
   );
 
-  // Call Groq in batches of BATCH_SIZE
   const groqResults = new Map<number, GroqIssueAnalysis>();
 
   for (let i = 0; i < limited.length; i += BATCH_SIZE) {
@@ -151,7 +149,6 @@ export async function rankIssues(
       }
     } catch (err) {
       console.error(`Groq batch ${i / BATCH_SIZE + 1} failed:`, err);
-      // Fallback: use defaults for this batch
       for (const issue of batch) {
         groqResults.set(issue.id, {
           id: issue.id,
@@ -165,7 +162,6 @@ export async function rankIssues(
     }
   }
 
-  // Merge and sort
   const ranked: RankedIssue[] = limited.map((issue): RankedIssue => {
     const groq = groqResults.get(issue.id) ?? {
       id: issue.id,
